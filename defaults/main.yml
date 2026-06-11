@@ -13,7 +13,8 @@ O_generate_certs_valid_at: +2W
 O_hetzner_token: test  # https://docs.hetzner.com/cloud/api/getting-started/generating-api-token/
 O_generate_certs_letsencrypt_ordered_domains:
   - example.de
-O_generate_certs_letsencrypt_hetzner_repo: https://raw.githubusercontent.com/dschoeffm/hetzner-dns-certbot/master
+O_generate_certs_letsencrypt_script_path: https://raw.githubusercontent.com/knutmaster/generate_certs/main/files
 O_generate_certs_letsencrypt_hetzner_scripts:
   - certbot-hetzner-auth.sh
   - certbot-hetzner-cleanup.sh
+O_generate_certs_offline: true

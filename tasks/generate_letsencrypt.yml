@@ -13,12 +13,27 @@
 
 - name: "Generate Certs generate_letsencrypt - download scripts"
   ansible.builtin.get_url:
-    url: "{{ O_generate_certs_letsencrypt_hetzner_repo }}/{{ O_generate_certs_hetzner_script }}"
+    url: "{{ O_generate_certs_letsencrypt_script_path }}/{{ O_generate_certs_hetzner_script }}"
     dest: "/usr/local/bin/{{ O_generate_certs_hetzner_script }}"
     mode: '0755'
   loop_control:
     loop_var: O_generate_certs_hetzner_script
   loop: "{{ O_generate_certs_letsencrypt_hetzner_scripts }}"
+  when:
+    - not O_generate_certs_offline
+
+- name: Nagios-server - copy additional checks to monitoring server # more infos about checks can be found in the README.md
+  ansible.builtin.copy:
+    src: "{{ item.src }}/{{ item.name }}"
+    owner: nagios
+    group: nagios
+    mode: "{{ item.mode }}"
+    dest: "{{ item.dest }}"
+  notify:
+    - Restart icinga2
+  loop:
+    - { dest: "/usr/local/bin", src: "files", name: "certbot-hetzner-auth.sh", mode: "0755" }
+    - { dest: "/usr/local/bin", src: "files", name: "certbot-hetzner-cleanup.sh", mode: "0755" }
 
 - name: Generate Certs generate_letsencrypt - copy hetzner token
   ansible.builtin.template:
