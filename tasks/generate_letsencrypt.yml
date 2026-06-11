@@ -22,7 +22,7 @@
   when:
     - not O_generate_certs_offline
 
-- name: Nagios-server - copy additional checks to monitoring server # more infos about checks can be found in the README.md
+- name: Nagios-server - copy hetzner scripts # more infos about checks can be found in the README.md
   ansible.builtin.copy:
     src: "{{ item.src }}/{{ item.name }}"
     owner: nagios
@@ -34,6 +34,8 @@
   loop:
     - { dest: "/usr/local/bin", src: "files", name: "certbot-hetzner-auth.sh", mode: "0755" }
     - { dest: "/usr/local/bin", src: "files", name: "certbot-hetzner-cleanup.sh", mode: "0755" }
+  when:
+    - O_generate_certs_offline
 
 - name: Generate Certs generate_letsencrypt - copy hetzner token
   ansible.builtin.template:
