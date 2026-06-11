@@ -1,0 +1,31 @@
+---
+- name: Generate Certs prepare - Filter and return only selected facts
+  ansible.builtin.setup:
+    filter:
+      - 'ansible_distribution'
+
+- name: Generate Certs prepare - Populate service facts
+  ansible.builtin.service_facts:
+
+- name: "Generate Certs prepare - install Ubuntu packages"
+  become: true
+  ansible.builtin.apt:
+    name: "{{ item.name }}"
+    state: "{{ item.state }}"
+  loop:
+    - {name: "libssl-dev", state: "latest"}
+    - {name: "python3", state: "latest"}
+    - {name: "python3-cryptography", state: "latest"}
+  when: ansible_distribution == "Ubuntu" or ansible_distribution == "Debian"
+
+- name: Generate Certs prepare - check if folder already exist
+  ansible.builtin.stat:
+    path: "{{ O_generate_certs_path }}"
+  register: R_generate_certs_folder_stat
+
+- name: "Generate Certs prepare - create folder if not already exist"
+  ansible.builtin.file:
+    path: "{{ O_generate_certs_path }}"
+    state: directory
+    mode: '0755'
+  when: not R_generate_certs_folder_stat.stat.exists

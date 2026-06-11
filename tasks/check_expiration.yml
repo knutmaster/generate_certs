@@ -1,0 +1,26 @@
+---
+
+- name: Generate Certs check_expiration - import prepare.yml
+  ansible.builtin.import_tasks:
+    file: prepare.yml
+
+- name: 'Generate Certs check_expiration - root permission block'
+  become: true
+  block:
+    - name: Generate Certs check_expiration - check if cert already exist
+      ansible.builtin.stat:
+        path: "{{ O_generate_certs_path }}/{{ O_generate_certs_cert_name }}"
+      register: R_generate_certs_folder_stat
+
+    - name: Cert Rotation check_expiration - check certificate expiration
+      community.crypto.x509_certificate_info:
+        path: "{{ O_generate_certs_path }}/{{ O_generate_certs_cert_name }}"
+        valid_at:
+          point_1: "{{ O_generate_certs_valid_at }}"
+      register: R_cert_rotation_cert_validity
+      when: R_generate_certs_folder_stat.stat.exists
+
+- name: Cert Rotation check_expiration - certificate validity check
+  ansible.builtin.debug:
+    var: R_cert_rotation_cert_validity.valid_at.point_1
+  when: R_generate_certs_folder_stat.stat.exists

@@ -1,0 +1,19 @@
+O_generate_certs_path: /etc/ssl/private
+O_generate_certs_common_name: default
+O_generate_certs_domain: example.de
+O_generate_certs_key_name: key.pem
+O_generate_certs_cert_name: cert.pem
+O_generate_certs_csr_name: csr.csr
+O_generate_certs_valid_not_after: +36500d
+O_generate_certs_alt_names_list:
+  - localhost
+  - 127.0.0.1
+O_generate_certs_method: selfsigned # Can be selfsigned or letsencrypt
+O_generate_certs_valid_at: +2W
+O_hetzner_token: test  # https://docs.hetzner.com/cloud/api/getting-started/generating-api-token/
+O_generate_certs_letsencrypt_ordered_domains:
+  - example.de
+O_generate_certs_letsencrypt_hetzner_repo: https://raw.githubusercontent.com/dschoeffm/hetzner-dns-certbot/master
+O_generate_certs_letsencrypt_hetzner_scripts:
+  - certbot-hetzner-auth.sh
+  - certbot-hetzner-cleanup.sh

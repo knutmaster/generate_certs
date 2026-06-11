@@ -1,0 +1,7 @@
+- name: Ship Letsencrypt Certs - Copy needed certs and keys
+  ansible.builtin.copy:
+    src: /etc/letsencrypt/{{ O_generate_certs_letsencrypt_domain }}
+    dest: "{{ O_generate_certs_path }}"
+    remote_src: true
+    owner: root
+    mode: "0644"

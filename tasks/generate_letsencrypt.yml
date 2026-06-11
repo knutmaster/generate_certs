@@ -1,0 +1,52 @@
+---
+- name: Generate Certs check_expiration - import prepare.yml
+  ansible.builtin.import_tasks:
+    file: prepare.yml
+
+- name: "Generate Certs generate_letsencrypt - install certbot package"
+  ansible.builtin.apt:
+    name: "{{ item.name }}"
+    state: "{{ item.state }}"
+  loop:
+    - {name: "certbot", state: "latest"}
+  when: ansible_distribution == "Ubuntu"
+
+- name: "Generate Certs generate_letsencrypt - download scripts"
+  ansible.builtin.get_url:
+    url: "{{ O_generate_certs_letsencrypt_hetzner_repo }}/{{ O_generate_certs_hetzner_script }}"
+    dest: "/usr/local/bin/{{ O_generate_certs_hetzner_script }}"
+    mode: '0755'
+  loop_control:
+    loop_var: O_generate_certs_hetzner_script
+  loop: "{{ O_generate_certs_letsencrypt_hetzner_scripts }}"
+
+- name: Generate Certs generate_letsencrypt - copy hetzner token
+  ansible.builtin.template:
+    src: token.j2
+    dest: /etc/hetzner-dns-token
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Generate Certs generate_letsencrypt - get/renew wildcard cert for Domains
+  ansible.builtin.command:
+    argv:
+      - certbot
+      - certonly
+      - --non-interactive
+      - --manual
+      - --preferred-challenges=dns
+      - --agree-tos
+      - "-m {{ O_admin_mail }}"
+      - --manual-auth-hook=/usr/local/bin/certbot-hetzner-auth.sh
+      - --manual-cleanup-hook=/usr/local/bin/certbot-hetzner-cleanup.sh
+      - "-d *.{{ R_generate_certs_letsencrypt_domain }}"
+  loop_control:
+    loop_var: R_generate_certs_letsencrypt_domain
+  loop: "{{ O_generate_certs_letsencrypt_ordered_domains }}"
+  changed_when: false
+
+- name: Generate Certs generate_letsencrypt - delete hetzner token
+  ansible.builtin.file:
+    path: /etc/hetzner-dns-token
+    state: absent

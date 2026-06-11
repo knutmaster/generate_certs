@@ -1,0 +1,13 @@
+---
+- name: Generate Certs exec - Creation block
+  when: R_cert_rotation_cert_validity.valid_at.point_1 is not defined or not R_cert_rotation_cert_validity.valid_at.point_1
+  block:
+    - name: Generate Certs exec - import generate_self_signed.yml
+      ansible.builtin.import_tasks:
+        file: generate_self_signed.yml
+      when: O_generate_certs_method == "selfsigned"
+
+    - name: Generate Certs exec - import ship_letsencrypt_certs.yml
+      ansible.builtin.import_tasks:
+        file: ship_letsencrypt_certs.yml
+      when: O_generate_certs_method == "letsencrypt"

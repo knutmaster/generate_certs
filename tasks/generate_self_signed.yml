@@ -1,0 +1,22 @@
+---
+- name: 'Generate Certs generate_self_signed - root permission block'
+  become: true
+  block:
+    - name: "Generate Certs generate_self_signed - generate privkey"
+      community.crypto.openssl_privatekey:
+        path: "{{ O_generate_certs_path }}/{{ O_generate_certs_key_name }}"
+
+    - name: "Generate Certs generate_self_signed - generate csr"
+      community.crypto.openssl_csr:
+        path: "{{ O_generate_certs_path }}/{{ O_generate_certs_csr_name }}"
+        privatekey_path: "{{ O_generate_certs_path }}/{{ O_generate_certs_key_name }}"
+        subject_alt_name: "{{ O_generate_certs_alt_names_list | map('regex_replace', '^', 'DNS:') | list }}"
+        common_name: "{{ O_generate_certs_common_name }}"
+
+    - name: "Generate Certs generate_self_signed - generate self signed ssl certificate"
+      community.crypto.x509_certificate:
+        path: "{{ O_generate_certs_path }}/{{ O_generate_certs_cert_name }}"
+        privatekey_path: "{{ O_generate_certs_path }}/{{ O_generate_certs_key_name }}"
+        csr_path: "{{ O_generate_certs_path }}/{{ O_generate_certs_csr_name }}"
+        selfsigned_not_after: "{{ O_generate_certs_valid_not_after }}"
+        provider: selfsigned

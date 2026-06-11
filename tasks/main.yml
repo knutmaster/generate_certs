@@ -1,0 +1,8 @@
+---
+- name: Generate Certs Main - import check_expiration.yml
+  ansible.builtin.import_tasks:
+    file: check_expiration.yml
+
+- name: Generate Certs Main - import exec.yml
+  ansible.builtin.import_tasks:
+    file: exec.yml
